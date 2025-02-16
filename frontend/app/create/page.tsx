@@ -1,6 +1,8 @@
 "use client"
 import axios from 'axios';
 import React, { useState } from 'react'
+import toast, { Toaster } from 'react-hot-toast';
+
 
 
 export default function Page() {
@@ -8,6 +10,7 @@ export default function Page() {
     const [content, setContent] = useState("");
     const [thumbnail, setThumbnail] = useState(null);
     const [autherEmail, setAutherEmail] = useState("");
+    const [loading, setLoading] = useState(false);
 
     console.log(title, content, thumbnail)
 
@@ -19,6 +22,7 @@ export default function Page() {
 
 
         try {
+            setLoading(true);
             const formData = new FormData();
             formData.append("title", title);
             formData.append("content", content);
@@ -28,14 +32,18 @@ export default function Page() {
 
 
 
-            const response = await axios.post("https://blog-backend-e5ge.onrender.com/articles",formData);//http://localhost:5000  https://blog-backend-e5ge.onrender.com
-            console.log(response, "This is response");
+            const response = await axios.post("https://blog-backend-e5ge.onrender.com/articles", formData);//http://localhost:5000  https://blog-backend-e5ge.onrender.com
+            setLoading(false);
             setTitle("");
             setContent("");
             setAutherEmail("");
+            setThumbnail(null);
+            toast.success("post created successfully");
+             
 
         } catch (error) {
             console.log("Post creation wait", error)
+            setLoading(false);
 
         }
     }
@@ -63,7 +71,7 @@ export default function Page() {
                         type="file" placeholder='Thumbnail'
                         className='border p-2' />
 
-                    <button type='submit' className='border p-2 bg-blue-500'>submit </button>
+                    <button type='submit' className='border p-2 bg-blue-500'>{ loading ? "creating":"create" } </button>
                 </div>
 
             </form>

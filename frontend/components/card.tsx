@@ -5,28 +5,56 @@ import { Button } from './ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 import axios from "axios";
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Card() {
     const [articles, setArticles] = useState([]);
+    const[loading,setLoading]=useState(false);
 
     const fetchArticleData = async () => {
         try {
+            setLoading(true);
             console.log("Fetching articles..."); 
             const response = await axios.get("https://blog-backend-e5ge.onrender.com/articles");
             console.log("API Response:", response.data);
             setArticles(response.data.article);
+            setLoading(false);
         } catch (error) {
             console.error("Error fetching articles:", error);
+            setLoading(false);
         }
     };
 
+    const deleteArticle=async(id)=>{
+        try {
+            const response=await axios.delete(`https://blog-backend-e5ge.onrender.com/articles/${id}`);
+            toast.success("delete success")
+            fetchArticleData();
+            
+        } catch (error) {
+            console.log("something went wrong",error)
+            toast.error("Deletion failure")
+            
+        }
+    }
+
     useEffect(() => {
         fetchArticleData();
+       
     }, []);
 
     return (
         <div className="grid grid-rows-1 md:grid-rows-2 lg:grid-rows-3 gap-6 my-6">
-            {articles.length > 0 ? (
+           {loading ? <div className='space-y-6'>
+            <div className='bg-slate-100  h-16 w-80'></div>
+            <div className='bg-slate-100  h-16 w-80'></div>
+            <div className='bg-slate-100  h-16 w-80'></div>
+            <div className='bg-slate-100  h-16 w-80'></div>
+            <div className='bg-slate-100  h-16 w-80'></div>
+            <div className='bg-slate-100  h-16 w-80'></div>
+               <div className='bg-slate-100  h-16 w-80'></div>
+           </div> : <div>
+            {
                 articles.map((card, index) => (
                     <div key={index} className="relative flex flex-col md:flex-row my-6 bg-white shadow-sm border border-slate-200 rounded-lg w-full">
                         <div className="relative p-2.5 md:w-2/5 shrink-0 overflow-hidden">
@@ -53,13 +81,14 @@ export default function Card() {
                             <p className="mb-8 text-slate-600 leading-normal font-light">
                                 {card.content}
                             </p>
+                            <p onClick={()=>deleteArticle(card._id)} className='bg-red-500 p-2 w-20'>Delete</p>
                             <Link href={`/articles/${card._id}`}><Button>Read more</Button></Link>
                         </div>
                     </div>
-                ))
-            ) : (
-                <p className="text-center text-gray-600">Loading articles...</p>
+                )
             )}
+            </div>
+            }
         </div>
     );
 }
