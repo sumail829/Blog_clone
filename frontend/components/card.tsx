@@ -11,8 +11,8 @@ export default function Card() {
 
     const fetchArticleData = async () => {
         try {
-            console.log("Fetching articles..."); // Debug log
-            const response = await axios.get("http://localhost:5000/articles");
+            console.log("Fetching articles..."); 
+            const response = await axios.get("https://blog-backend-e5ge.onrender.com/articles");
             console.log("API Response:", response.data);
             setArticles(response.data.article);
         } catch (error) {
@@ -30,15 +30,18 @@ export default function Card() {
                 articles.map((card, index) => (
                     <div key={index} className="relative flex flex-col md:flex-row my-6 bg-white shadow-sm border border-slate-200 rounded-lg w-full">
                         <div className="relative p-2.5 md:w-2/5 shrink-0 overflow-hidden">
-                            <div className="relative w-full h-32 md:h-full">
-                                <Image
+                            <Link  href={`/articles/${card._id}`} >
+                             <div className="relative w-full h-32 md:h-full">
+                             <Image
                                     src={card.thumbnail}
                                     alt={card.title}
                                     fill
                                     className="rounded-md md:rounded-lg object-cover"
                                     priority
                                 />
-                            </div>
+                             </div>
+                                
+                            </Link>
                         </div>
                         <div className="p-6">
                             <div className="mb-4 rounded-full bg-teal-600 py-0.5 px-2.5 text-xs text-white shadow-sm w-20 text-center">

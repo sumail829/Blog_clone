@@ -2,6 +2,15 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors"//only give access to its developer
 import 'dotenv/config'
+import multer from "multer";
+import { v2 as cloudinary } from 'cloudinary'
+const upload = multer({ dest: 'uploads/' })
+
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
+});
 
 //server setup
 const app = express();
@@ -26,17 +35,17 @@ const userSchema = new mongoose.Schema({
     profilePicture: { type: String, required: true },
 });
 
-const articleSchema=new mongoose.Schema({
-    autherEmail:{type:String,required:true},
-    title:{type:String,required:true},
-    content:{type:String,required:true},
-    thumbnail:{type:String},
+const articleSchema = new mongoose.Schema({
+    autherEmail: { type: String, required: true },
+    title: { type: String, required: true },
+    content: { type: String, required: true },
+    thumbnail: { type: String },
 
 })
 
 
 const User = mongoose.model("User", userSchema);
-const Article=mongoose.model("Article",articleSchema);
+const Article = mongoose.model("Article", articleSchema);
 
 
 //Users Routes(CRUD)
@@ -104,18 +113,18 @@ app.get("/users/:id", async (req, res) => {
 //Update the user
 app.patch("/users/:id", async (req, res) => {
     try {
-      const userExist=await User.findById(req.params.id);
-      if(!userExist){
-        return res.status(404).json({
-            message:"User not found"
-        })
-      }
+        const userExist = await User.findById(req.params.id);
+        if (!userExist) {
+            return res.status(404).json({
+                message: "User not found"
+            })
+        }
 
-      const updataedUser=await User.findByIdAndUpdate(req.params.id,req.body,{new:true})  //new true update the new value
-      return res.status(200).json({
-        message:"User success successfully"
-    
-      })
+        const updataedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true })  //new true update the new value
+        return res.status(200).json({
+            message: "User success successfully"
+
+        })
 
 
     } catch (error) {
@@ -128,16 +137,16 @@ app.patch("/users/:id", async (req, res) => {
 
 //Delete a user
 
-app.delete("/users/:id",async(req,res)=>{
+app.delete("/users/:id", async (req, res) => {
     try {
-        const deletedUser=await User.findByIdAndDelete(req.params.id);
-        if(!deletedUser){
-            return res.status(404).json({message:"user not found"})
+        const deletedUser = await User.findByIdAndDelete(req.params.id);
+        if (!deletedUser) {
+            return res.status(404).json({ message: "user not found" })
         }
 
         return res.status(200).json({
-            message:"user deleted succesfully",
-            user:deletedUser,
+            message: "user deleted succesfully",
+            user: deletedUser,
         })
 
     } catch (error) {
@@ -145,89 +154,109 @@ app.delete("/users/:id",async(req,res)=>{
         return res.status(500).json({
             message: "Internal server error"
         })
-        }
+    }
 })
 
 //Article CRUD
 
 //Create Article
 
-app.post("/articles",async(req,res)=>{
+app.post("/articles", upload.single('thumbnail'), async (req, res) => {
     try {
-        const createArticle=await new Article(req.body).save();
+        const cloudinaryResponse = await cloudinary.uploader.upload(req.file.path);
+        console.log(cloudinaryResponse, "cloudinary REsponse");
+
+        const createArticle = await new Article({ ...req.body, thumbnail: cloudinaryResponse.secure_url }).save();
         return res.status(200).json({
-            message:"Article cerated successfully",
-            data:createArticle,
+            message: "Article cerated successfully",
+            data: createArticle,
         })
-        
+
     } catch (error) {
-        console.log("something went wrong",error)
-        return res.status(500).json({message:"Internal server error"})
-        
+        console.log("something went wrong", error)
+        return res.status(500).json({ message: "Internal server error" })
+
     }
 })
 
-app.get("/articles",async(req,res)=>{
+app.get("/articles", async (req, res) => {
     try {
-        const fetchArticles=await Article.find();
+        const fetchArticles = await Article.find();
         return res.status(200).json({
-            message:"Article fetched successfully",
-            article:fetchArticles,
+            message: "Article fetched successfully",
+            article: fetchArticles,
         })
-        
+
     } catch (error) {
-        console.log("something went wrong",error)
-        return res.status(500).json({message:"Internal server error"})
-        
+        console.log("something went wrong", error)
+        return res.status(500).json({ message: "Internal server error" })
+
     }
-        
-    }
+
+}
 )
 // get one user
-app.get("/articles/:id",async(req,res)=>{
+app.get("/articles/:id", async (req, res) => {
     try {
-        const fetchSingleArticles=await Article.findById(req.params.id);
+        const fetchSingleArticles = await Article.findById(req.params.id);
         return res.status(200).json({
-            message:"Single Rticle fetched successfully",
-            article:fetchSingleArticles,
+            message: "Single Rticle fetched successfully",
+            article: fetchSingleArticles,
         })
-        
+
     } catch (error) {
-        console.log("something went wrong",error)
-        return res.status(500).json({message:"Internal server error"})
-        
+        console.log("something went wrong", error)
+        return res.status(500).json({ message: "Internal server error" })
+
     }
-        
-    }
+
+}
 )
 
-app.patch("/articles/:id",async(req,res)=>{
+app.patch("/articles/:id", upload.single('thumbnail'), async (req, res) => {
     try {
-        const updateArticle=await Article.findByIdAndUpdate(req.params.id,req.body,{new:true});
-        if(!updateArticle){
-            return res.status(404).json({message:"Article not found"})
+        if (req.file) {
+            const cloudinaryResponse = await cloudinary.uploader.upload(req.file.path);
+            console.log(cloudinaryResponse, "cloudinary REsponse")
+
+            const updateArticle = await Article.findByIdAndUpdate(req.params.id, { ...req.body, thumbnail: cloudinaryResponse.secure_url }, { new: true });
+            if (!updateArticle) {
+                return res.status(404).json({ message: "Article not found" })
+            }
+            return res.status(200).json({
+                message: "Article updated successfully",
+                article: updateArticle
+            })
         }
-        return res.status(200).json({message:"Article updated successfully"})
-        
+
+        const updateArticle = await Article.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updateArticle) {
+            return res.status(404).json({ message: "Article not found" })
+        }
+        return res.status(200).json({
+            message: "Article updated successfully",
+            article: updateArticle
+        })
+
     } catch (error) {
-        console.log("something went wrong",error)
-        return res.status(500).json({message:"Internal server error"})
-        
+        console.log("something went wrong", error)
+        return res.status(500).json({ message: "Internal server error" })
+
     }
-    }
+}
 )
 
-app.delete("/articles/:id",async(req,res)=>{
+app.delete("/articles/:id", async (req, res) => {
     try {
-        const deleteArticle=await Article.findByIdAndDelete(req.params.id);
-        if(!deleteArticle){
-            return res.status(404).json({message:"article not found"})
+        const deleteArticle = await Article.findByIdAndDelete(req.params.id);
+        if (!deleteArticle) {
+            return res.status(404).json({ message: "article not found" })
         }
-        return res.status(200).json({message:"Article deleted successfully",article:deleteArticle})
-        
+        return res.status(200).json({ message: "Article deleted successfully", article: deleteArticle })
+
     } catch (error) {
-        console.log("something went wrong",error)
-        return res.status(500).json({message:"Internal server error"})
+        console.log("something went wrong", error)
+        return res.status(500).json({ message: "Internal server error" })
     }
 })
 

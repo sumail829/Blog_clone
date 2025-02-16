@@ -1,8 +1,8 @@
 import React from 'react'
 
 export default function Hero() {
-    return (
-        <div className="text-center py-16 px-4 border-b">
+  return (
+    <div className="text-center py-16 px-4 border-b">
       <h1 className="text-4xl font-bold text-gray-900">
         Heartfelt <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">Reflections</span>: Stories of Love,<br /> Loss, and Growth
       </h1>
