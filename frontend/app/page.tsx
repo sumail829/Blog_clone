@@ -1,8 +1,6 @@
 import Card from "@/components/card";
-import Hero from "@/components/hero";
-import Navbar from "@/components/navbar";
 import TrendingTopics from "@/components/trendingtopics";
-import Image from "next/image";
+
 
 
 

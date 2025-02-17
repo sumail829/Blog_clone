@@ -1,4 +1,6 @@
 import React from 'react'
+import { Button } from './ui/button';
+import Link from 'next/link';
 
 export default function Hero() {
   return (
@@ -9,6 +11,7 @@ export default function Hero() {
       <p className="mt-4 text-gray-600 text-lg max-w-2xl mx-auto">
         Revision welcomes you to the ultimate source for fresh perspectives! Explore curated content to enlighten, entertain, and engage global readers.
       </p>
+     <Link href="/create"><Button>Create Article</Button></Link> 
     </div>
   );
 }

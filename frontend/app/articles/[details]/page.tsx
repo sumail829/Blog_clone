@@ -1,13 +1,15 @@
-"use client";
+
 
 import Articlesdata from '@/components/articlesdata';
-import axios from 'axios';
-import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
 
+interface pageProps{
+    params:Promise<{
+        details:string
+    }>
+}
 
-export default async function Page({params}) {
-   const {details}=await params;
+export default async function Page({params}:pageProps) {
+   const {details}= await params;
    console.log(details,"this is id")
     
     return(

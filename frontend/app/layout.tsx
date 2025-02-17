@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
 import Hero from "@/components/hero";
-import toast, { Toaster } from 'react-hot-toast';
+import  { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,30 +23,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar></Navbar>
-          <Hero></Hero>
+          <Navbar />
+          <Hero />
           {children}
-          <Toaster
-            position="top-right"
-            reverseOrder={false}
-          />
-
-
+          <Toaster position="top-right" reverseOrder={false} />
         </ThemeProvider>
       </body>
     </html>
